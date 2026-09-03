@@ -1,0 +1,29 @@
+We want to consider 5 scenarios that might occur:
+- Turn 2 aurora
+- Turn 3 aurora
+- Turn 4 aurora 
+- Turn 4 aurora with backup cards.
+
+The game functions as previously in the written code but this time we will need to consider resource menagment into our calculations to have the real numbers behind the deck.
+The game starts with the player drawing 4 cards being able to mulligan 2 of them (which means putting two of them at the bottom of their library and drawing two fresh ones, the cards that are bottomed are inaccesibble until all the other cards in the library get drawn before thuswe can consider them "gone" for the purposes of this calculation)
+Every turn starts by drawing a card from the deck and channeling two runes. Runes are the resources used to play cards from our turn and need to be accounted for to calculate the odds of being able to cast aurora. Depending if we are starting first or second, we start with either 2 runes or 3 runes channeled for turn 1, every other turn is exactly the same (so going first we have 2 runes turn 1, 4 runes turn 2, 6 turn 3 etc, and going second we go 3-5-7).
+
+Every card has an energy cost and a power cost.
+An energy cost requires us to "exhaust" a rune which can be done once each turn. Every rune adds one energy, so on turn 1 we can play a card with an energy cost of 2 and nothing else as our runes are exhausted until our next turn.
+Power costs are more harsh and require us to "recycle" (send back to the resource deck) the rune. Every rune can be only recycled once and becomes inaccesible during later turns. This means that if on turn 2 we play a card that cost 4 energy and 1 power, we can't cast any more spells during that turn and we need to recycle one rune, meaning that on the subsequent turn we will only have access to 5 runes (normally it would be 6)
+
+I want to consider a deck that runs groups of some cards, and I want this code to be able to calculate the probability of each of these scenarios based on how many of each card I have in my deck and if I am going first or second. Below I explain every card and what it does and then I will explain how I want this calculation to go. I will abreviate energy cost as EC, power cost as PC and then explain its effect.
+
+Aurora: EC 9, PC 2, when played we consider the scenario to be considered a success.
+Mobilize: EC 2, PC 0, when played channel 1 rune exhausted (thus increasing our rune count by 1 for the following turns)
+Catalyst: EC 4, PC 0, when played channel 2 runes exhausted (thus increasing our rune count by 2 for the following turns)
+Egg: EC 3, PC 0, enters exhausted. Can be exhausted to add 1 energy (equivalent of tapping one rune) used to playing cards. Can be empowered to instead add 3 energy to the players pool. To empower it can be played for 5 energy or on the next turn a cost of 2 energy can be payed to empower.
+Dredge up: EC 2, PC 0, when played draw a card
+Clairvoycane: EC 7, PC 0, when played, look at the top 5 cards of your deck. Put any number of them on top and the rest (up to 5) on the bottom. Then draw 2 cards.
+Promising future: EC 5, PC 1, when played, look at the top 5 cards of your deck. Play one of them ignoring its enery cost and put the on the bottom.
+backup card: EC 1, PC 1, this card has no effect. Its purpose is to calculate the probability of a "turn 4 aurora with backup card" scenario. (meaning if the card was drawn and can be played).
+
+Now the logic (and this is the hardest part of the code) need to go like this:
+We have a deck contatining 39 cards, with as many of each of the above mentioned cards as will be specified later on by the user, the deafult is 3 copies of each card and 5 backup cards. This doesnt add up to 39 (by the deafult values it adds up to 26) so the rest of the deck we consider as blank cards, that cant be played.
+We make the decision for the opening hand. If there is no aurora we always mulligan 2 prioritasing cards mulliganed like this (from left to right the cards we want to mulligan the most to the least)
+blank cards, dredge up, clairvoyance,

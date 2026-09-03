@@ -1,6 +1,6 @@
 import argparse
 
-from hypergeometric import CardProbabilityCalculator
+from src.core import CardProbabilityCalculator
 
 OPENING_HAND_SIZE = 4
 

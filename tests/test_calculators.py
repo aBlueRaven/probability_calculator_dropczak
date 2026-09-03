@@ -1,7 +1,9 @@
 import unittest
 
-from hypergeometric import CardProbabilityCalculator
-from promising_future import PromisingFutureScenario
+from src.core import CardProbabilityCalculator
+from src.promising_future import PromisingFutureScenario
+from src.scenario_loader import discover_scenarios
+from src.two_card_combo import TwoCardComboCalculator
 
 
 class CardProbabilityCalculatorTests(unittest.TestCase):
@@ -70,6 +72,32 @@ class PromisingFutureScenarioTests(unittest.TestCase):
             with_two_mulligans.success_probability(),
             without_mulligan.success_probability(),
         )
+
+
+class TwoCardComboCalculatorTests(unittest.TestCase):
+    def test_finds_both_cards_in_small_known_example(self) -> None:
+        calculator = TwoCardComboCalculator(4, 1, 1, 2)
+        self.assertAlmostEqual(calculator.success_probability(), 1 / 6)
+
+    def test_zero_copies_of_one_piece_cannot_succeed(self) -> None:
+        calculator = TwoCardComboCalculator(39, 3, 0, 8)
+        self.assertEqual(calculator.success_probability(), 0.0)
+
+    def test_card_types_must_fit_in_deck(self) -> None:
+        with self.assertRaises(ValueError):
+            TwoCardComboCalculator(10, 6, 5, 4)
+
+
+class ScenarioDiscoveryTests(unittest.TestCase):
+    def test_discovers_every_scenario_with_a_streamlit_ui(self) -> None:
+        scenarios, errors = discover_scenarios()
+
+        self.assertEqual(
+            set(scenarios),
+            {"promising_future", "two_card_combo", "two_drops"},
+        )
+        self.assertEqual(errors, {})
+        self.assertTrue(all(callable(plugin.render) for plugin in scenarios.values()))
 
 
 if __name__ == "__main__":

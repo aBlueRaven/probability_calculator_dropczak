@@ -1,6 +1,6 @@
 import argparse
 
-from promising_future import PromisingFutureScenario
+from src.promising_future import PromisingFutureScenario
 
 
 def parse_args() -> argparse.Namespace:
